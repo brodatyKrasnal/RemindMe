@@ -4,10 +4,10 @@
 
 
 import UIKit
+import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
 
 
     // triggered when app gets loaded up
@@ -28,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // when app gets terminated (by user or when phone claims resources)
     func applicationWillTerminate(_ application: UIApplication) {
-        //
+        self.saveContext()
     }
 
     // MARK: UISceneSession Lifecycle
@@ -45,6 +45,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
 
+    // MARK: - Core Data stack
+    //NSPersistentContainer is basically a SQLLite database
+    lazy var persistentContainer: NSPersistentCloudKitContainer = {
 
+        let container = NSPersistentCloudKitContainer(name: "DataModel")
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }()
+
+    // MARK: - Core Data Saving support
+
+    func saveContext () {
+        //Context is a workable area for data (sandbox, temporary area)
+        let context = persistentContainer.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+            }
+        }
+    }
 }
 
